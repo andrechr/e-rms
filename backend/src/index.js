@@ -1,4 +1,4 @@
-import './config.js'
+//import './config.js'
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
 import db from './plugins/db.js'
