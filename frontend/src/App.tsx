@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useEmployeeStore } from './store/employeeStore'
 import type { Employee, CreateEmployeeInput, UpdateEmployeeInput } from './types/employee'
-import EmployeeTable from './components/employeeTable'
+import EmployeeTable from './components/EmployeeTable'
 import SearchBar from './components/SearchBar'
 import EmployeeModal from './components/EmployeeModal'
 import DeleteConfirm from './components/DeleteConfirm'
+import { Toaster } from 'react-hot-toast'
 
 export default function App() {
     const { employees, fetchAll, addEmployee, editEmployee, removeEmployee } = useEmployeeStore()
@@ -78,6 +79,7 @@ export default function App() {
               onConfirm={handleConfirmDelete}
               onCancel={() => setDeleteTarget(null)}
             />
+            <Toaster position="bottom-right" />
           </div>
         </div>
     )
