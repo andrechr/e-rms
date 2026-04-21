@@ -2,8 +2,9 @@ const required = ['DATABASE_URL']
 
 for (const key of required) {
     if (!process.env[key]) {
-        console.error(`Missing required env var: ${key}`)
-        process.exit(1)
+        console.error(`[FATAL] Missing required env var: ${key}`)
+        console.error(`[FATAL] Available env vars: ${Object.keys(process.env).join(', ')}`)
+        setTimeout(() => process.exit(1), 1000)
     }
 }
 
