@@ -6,7 +6,11 @@ import employeeRoutes from './routes/employees.js'
 
 const app = Fastify({ logger: true })
 
-await app.register(cors, { origin: 'http://localhost:5173' })
+await app.register(cors, {
+  origin: 'http://localhost:5173',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type']
+})
 await app.register(db)
 await app.register(employeeRoutes)
 
