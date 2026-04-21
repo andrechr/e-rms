@@ -1,4 +1,5 @@
 import type { Employee } from '../types/employee'
+import { Pencil, Trash2 } from 'lucide-react'
 
 interface Props {
     employees: Employee[]
@@ -29,19 +30,25 @@ export default function EmployeeTable({ employees, onEdit, onDelete }: Props) {
                 <td className="px-6 py-4 flex gap-2">
                 <button
                     onClick={() => onEdit(emp)}
-                    className="text-blue-600 hover:text-blue-800 font-medium"
-                >
-                    Edit
+                    className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer">
+                   <Pencil size={15} />
                 </button>
                 <button
                     onClick={() => onDelete(emp)}
-                    className="text-red-500 hover:text-red-700 font-medium"
+                    className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                 >
-                    Delete
+                    <Trash2 size={15} />
                 </button>
                 </td>
             </tr>
             ))}
+            {employees.length === 0 && (
+                <tr>
+                <td colSpan={5} className="px-6 py-12 text-center text-gray-400 text-sm">
+                    No employees found.
+                </td>
+                </tr>
+            )}
         </tbody>
         </table>
     </div>

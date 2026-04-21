@@ -8,7 +8,7 @@ import DeleteConfirm from './components/DeleteConfirm'
 import { Toaster } from 'react-hot-toast'
 
 export default function App() {
-    const { employees, fetchAll, addEmployee, editEmployee, removeEmployee } = useEmployeeStore()
+    const { employees, loading, fetchAll, addEmployee, editEmployee, removeEmployee } = useEmployeeStore()
 
     const [search, setSearch] = useState('')
     const [modalOpen, setModalOpen] = useState(false)
@@ -49,6 +49,7 @@ export default function App() {
     }
 
     return (
+      
         <div className="min-h-screen bg-gray-50">
           <div className="max-w-6xl mx-auto px-6 py-8">
             <div className="flex items-center justify-between mb-6">
@@ -63,11 +64,17 @@ export default function App() {
             <div className="mb-4">
               <SearchBar value={search} onChange={setSearch} />
             </div>
-            <EmployeeTable
-              employees={filtered}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
+            {loading ? (
+              <div className="flex justify-center py-12">
+                <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+              </div>
+            ) : (
+              <EmployeeTable
+                employees={filtered}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
+            )}
             <EmployeeModal
               isOpen={modalOpen}
               employee={selectedEmployee}
