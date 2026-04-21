@@ -7,7 +7,10 @@ import employeeRoutes from './routes/employees.js'
 const app = Fastify({ logger: true })
 
 await app.register(cors, {
-  origin: 'http://localhost:5173',
+  origin: [
+    'http://localhost:5173',
+    'https://e-rms.vercel.app'
+  ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type']
 })
