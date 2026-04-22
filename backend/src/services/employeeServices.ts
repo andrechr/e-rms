@@ -6,17 +6,18 @@ export function employeeService(prisma: PrismaClient) {
             prisma.employee.findMany({
                 skip: (page - 1) * limit,
                 take: limit,
+                include: { department: true },
             }),
 
         count: () => prisma.employee.count(),
 
-        getOne: (id: string) => prisma.employee.findUnique({ where: { id } }),
+        getOne: (id: string) => prisma.employee.findUnique({ where: { id }, include: { department: true } }),
 
-        create: (data: { name: string; email: string; department?: string; role?: string }) =>
-            prisma.employee.create({ data }),
+        create: (data: { name: string; email: string; departmentId?: string; role?: string }) =>
+            prisma.employee.create({ data, include: { department: true } }),
 
-        update: (id: string, data: { name?: string; email?: string; department?: string; role?: string }) =>
-            prisma.employee.update({ where: { id }, data }),
+        update: (id: string, data: { name?: string; email?: string; departmentId?: string; role?: string }) =>
+            prisma.employee.update({ where: { id }, data, include: { department: true } }),
 
         remove: (id: string) => prisma.employee.delete({ where: { id } }),
     }

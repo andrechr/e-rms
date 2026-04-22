@@ -3,20 +3,26 @@ import Fastify from 'fastify'
 import type { FastifyInstance } from 'fastify'
 import employeeRoutes from './employees.js'
 
+const mockDepartment = { id: 'd1', name: 'Engineering', createdAt: new Date().toISOString() }
+
 const mockEmployee = {
   id: '1',
   name: 'Boodi Santoso',
   email: 'boodi@example.com',
-  department: 'Engineering',
+  departmentId: 'd1',
+  department: mockDepartment,
   role: 'Developer',
+  createdAt: new Date().toISOString(),
 }
 
 const mockEmployee2 = {
   id: '2',
   name: 'Maja Putri',
   email: 'maja@example.com',
-  department: 'HR',
+  departmentId: null,
+  department: null,
   role: 'Manager',
+  createdAt: new Date().toISOString(),
 }
 
 function buildApp(prisma: unknown): FastifyInstance {

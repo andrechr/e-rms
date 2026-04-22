@@ -7,13 +7,19 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Employee {
-    id         String   @id @default(uuid())
-    name       String
-    email      String   @unique
-    department String?
-    role       String?
-    createdAt  DateTime @default(now())
+model Department {
+    id        String     @id @default(uuid())
+    name      String     @unique
+    createdAt DateTime   @default(now())
+    employees Employee[]
+}
 
-    @@index([department])
+model Employee {
+    id           String      @id @default(uuid())
+    name         String
+    email        String      @unique
+    role         String?
+    createdAt    DateTime    @default(now())
+    departmentId String?
+    department   Department? @relation(fields: [departmentId], references: [id])
 }

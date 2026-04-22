@@ -9,11 +9,14 @@ vi.mock('react-hot-toast', () => ({
   }),
 }))
 
+const mockDepartment = { id: 'd1', name: 'Engineering', createdAt: '2024-01-01T00:00:00.000Z' }
+
 const mockEmployee = {
   id: '1',
   name: 'Boodi Santoso',
   email: 'boodi@example.com',
-  department: 'Engineering',
+  departmentId: 'd1',
+  department: mockDepartment,
   role: 'Developer',
   createdAt: '2024-01-01T00:00:00.000Z',
 }
@@ -22,7 +25,8 @@ const mockEmployee2 = {
   id: '2',
   name: 'Maja Putri',
   email: 'maja@example.com',
-  department: 'HR',
+  departmentId: null,
+  department: null,
   role: 'Manager',
   createdAt: '2024-01-02T00:00:00.000Z',
 }
@@ -78,7 +82,7 @@ describe('addEmployee', () => {
     await useEmployeeStore.getState().addEmployee({
       name: 'Maja Putri',
       email: 'maja@example.com',
-      department: 'HR',
+      departmentId: 'd1',
       role: 'Manager',
     })
 

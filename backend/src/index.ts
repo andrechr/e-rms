@@ -2,6 +2,7 @@ import Fastify from 'fastify'
 import cors from '@fastify/cors'
 import db from './plugins/db.js'
 import employeeRoutes from './routes/employees.js'
+import departmentRoutes from './routes/departments.js'
 
 const app = Fastify({ logger: true })
 
@@ -23,6 +24,7 @@ app.setErrorHandler((error: any, request, reply) => {
 })
 
 await app.register(employeeRoutes)
+await app.register(departmentRoutes)
 
 app.get('/health', async () => ({ status: 'ok' }))
 

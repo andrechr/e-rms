@@ -5,10 +5,10 @@ const employeeBodySchema = {
     type: 'object',
     required: ['name', 'email'],
     properties: {
-        name:       { type: 'string', minLength: 1 },
-        email:      { type: 'string', format: 'email' },
-        department: { type: 'string' },
-        role:       { type: 'string' },
+        name:         { type: 'string', minLength: 1 },
+        email:        { type: 'string', format: 'email' },
+        departmentId: { type: 'string' },
+        role:         { type: 'string' },
     },
     additionalProperties: false
 } as const
@@ -16,10 +16,10 @@ const employeeBodySchema = {
 const employeeUpdateSchema = {
     type: 'object',
     properties: {
-        name:       { type: 'string', minLength: 1 },
-        email:      { type: 'string', format: 'email' },
-        department: { type: 'string' },
-        role:       { type: 'string' },
+        name:         { type: 'string', minLength: 1 },
+        email:        { type: 'string', format: 'email' },
+        departmentId: { type: 'string' },
+        role:         { type: 'string' },
     },
     additionalProperties: false
 } as const
@@ -52,13 +52,13 @@ export default async function employeeRoutes(app: FastifyInstance) {
     })
 
     app.post('/employees', { schema: { body: employeeBodySchema } }, async (request, reply) => {
-        const employee = await service.create(request.body as { name: string; email: string; department?: string; role?: string })
+        const employee = await service.create(request.body as { name: string; email: string; departmentId?: string; role?: string })
         return reply.code(201).send(employee)
     })
 
     app.put('/employees/:id', { schema: { body: employeeUpdateSchema } }, async (request, reply) => {
         const { id } = request.params as { id: string }
-        return await service.update(id, request.body as { name?: string; email?: string; department?: string; role?: string })
+        return await service.update(id, request.body as { name?: string; email?: string; departmentId?: string; role?: string })
     })
 
     app.delete('/employees/:id', async (request, reply) => {

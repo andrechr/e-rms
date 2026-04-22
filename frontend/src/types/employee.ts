@@ -1,8 +1,15 @@
+export interface Department {
+    id: string
+    name: string
+    createdAt: string
+}
+
 export interface Employee {
     id: string
     name: string
     email: string
-    department: string | null
+    departmentId: string | null
+    department: Department | null
     role: string | null
     createdAt: string
 }
@@ -10,7 +17,7 @@ export interface Employee {
 export interface CreateEmployeeInput {
     name: string
     email: string
-    department?: string
+    departmentId?: string
     role?: string
 }
 

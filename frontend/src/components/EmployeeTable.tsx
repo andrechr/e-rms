@@ -28,7 +28,7 @@ export default function EmployeeTable({ employees, onEdit, onDelete, page, total
             <tr key={emp.id} className="hover:bg-gray-50 transition-colors">
                 <td className="px-6 py-4 font-medium text-gray-900">{emp.name}</td>
                 <td className="px-6 py-4 text-gray-600">{emp.email}</td>
-                <td className="px-6 py-4 text-gray-600">{emp.department ?? '—'}</td>
+                <td className="px-6 py-4 text-gray-600">{emp.department?.name ?? '—'}</td>
                 <td className="px-6 py-4 text-gray-600">{emp.role ?? '—'}</td>
                 <td className="px-6 py-4 flex gap-2">
                 <button
