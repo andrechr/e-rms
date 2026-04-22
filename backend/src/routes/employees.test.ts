@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import Fastify from 'fastify'
+import type { FastifyInstance } from 'fastify'
 import employeeRoutes from './employees.js'
 
 const mockEmployee = {
@@ -18,11 +19,11 @@ const mockEmployee2 = {
   role: 'Manager',
 }
 
-function buildApp(prisma) {
+function buildApp(prisma: unknown): FastifyInstance {
   const app = Fastify()
-  app.decorate('prisma', prisma)
+  app.decorate('prisma', prisma as any)
   app.register(employeeRoutes)
-  app.setErrorHandler((error, request, reply) => {
+  app.setErrorHandler((error: any, request, reply) => {
     if (error.validation) return reply.code(400).send({ error: error.message })
     if (error.code === 'P2002') return reply.code(409).send({ error: 'Email already exists' })
     if (error.code === 'P2025') return reply.code(404).send({ error: 'Employee not found' })
@@ -38,7 +39,7 @@ describe('GET /employees', () => {
         findMany: vi.fn().mockResolvedValue([mockEmployee, mockEmployee2]),
         count: vi.fn().mockResolvedValue(2),
       }
-    }
+    } as any
     const app = buildApp(prisma)
     const res = await app.inject({ method: 'GET', url: '/employees?page=1&limit=10' })
     expect(res.statusCode).toBe(200)
@@ -51,7 +52,7 @@ describe('GET /employees', () => {
 
 describe('GET /employees/:id', () => {
   it('returns employee when found', async () => {
-    const prisma = { employee: { findUnique: vi.fn().mockResolvedValue(mockEmployee) } }
+    const prisma = { employee: { findUnique: vi.fn().mockResolvedValue(mockEmployee) } } as any
     const app = buildApp(prisma)
     const res = await app.inject({ method: 'GET', url: '/employees/1' })
     expect(res.statusCode).toBe(200)
@@ -59,7 +60,7 @@ describe('GET /employees/:id', () => {
   })
 
   it('returns 404 when not found', async () => {
-    const prisma = { employee: { findUnique: vi.fn().mockResolvedValue(null) } }
+    const prisma = { employee: { findUnique: vi.fn().mockResolvedValue(null) } } as any
     const app = buildApp(prisma)
     const res = await app.inject({ method: 'GET', url: '/employees/999' })
     expect(res.statusCode).toBe(404)
@@ -68,7 +69,7 @@ describe('GET /employees/:id', () => {
 
 describe('POST /employees', () => {
   it('creates and returns new employee', async () => {
-    const prisma = { employee: { create: vi.fn().mockResolvedValue(mockEmployee) } }
+    const prisma = { employee: { create: vi.fn().mockResolvedValue(mockEmployee) } } as any
     const app = buildApp(prisma)
     const res = await app.inject({
       method: 'POST',
@@ -80,7 +81,7 @@ describe('POST /employees', () => {
   })
 
   it('returns 400 on missing required fields', async () => {
-    const prisma = { employee: { create: vi.fn() } }
+    const prisma = { employee: { create: vi.fn() } } as any
     const app = buildApp(prisma)
     const res = await app.inject({
       method: 'POST',
@@ -92,7 +93,7 @@ describe('POST /employees', () => {
 
   it('returns 409 on duplicate email', async () => {
     const error = Object.assign(new Error('Unique constraint'), { code: 'P2002' })
-    const prisma = { employee: { create: vi.fn().mockRejectedValue(error) } }
+    const prisma = { employee: { create: vi.fn().mockRejectedValue(error) } } as any
     const app = buildApp(prisma)
     const res = await app.inject({
       method: 'POST',
@@ -107,7 +108,7 @@ describe('POST /employees', () => {
 describe('PUT /employees/:id', () => {
   it('updates and returns employee', async () => {
     const updated = { ...mockEmployee, role: 'Senior Developer' }
-    const prisma = { employee: { update: vi.fn().mockResolvedValue(updated) } }
+    const prisma = { employee: { update: vi.fn().mockResolvedValue(updated) } } as any
     const app = buildApp(prisma)
     const res = await app.inject({
       method: 'PUT',
@@ -120,7 +121,7 @@ describe('PUT /employees/:id', () => {
 
   it('returns 404 when employee not found', async () => {
     const error = Object.assign(new Error('Not found'), { code: 'P2025' })
-    const prisma = { employee: { update: vi.fn().mockRejectedValue(error) } }
+    const prisma = { employee: { update: vi.fn().mockRejectedValue(error) } } as any
     const app = buildApp(prisma)
     const res = await app.inject({
       method: 'PUT',
@@ -133,7 +134,7 @@ describe('PUT /employees/:id', () => {
 
 describe('DELETE /employees/:id', () => {
   it('returns 204 on success', async () => {
-    const prisma = { employee: { delete: vi.fn().mockResolvedValue(mockEmployee) } }
+    const prisma = { employee: { delete: vi.fn().mockResolvedValue(mockEmployee) } } as any
     const app = buildApp(prisma)
     const res = await app.inject({ method: 'DELETE', url: '/employees/1' })
     expect(res.statusCode).toBe(204)
@@ -141,7 +142,7 @@ describe('DELETE /employees/:id', () => {
 
   it('returns 404 when employee not found', async () => {
     const error = Object.assign(new Error('Not found'), { code: 'P2025' })
-    const prisma = { employee: { delete: vi.fn().mockRejectedValue(error) } }
+    const prisma = { employee: { delete: vi.fn().mockRejectedValue(error) } } as any
     const app = buildApp(prisma)
     const res = await app.inject({ method: 'DELETE', url: '/employees/999' })
     expect(res.statusCode).toBe(404)

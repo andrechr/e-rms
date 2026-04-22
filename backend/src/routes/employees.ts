@@ -1,4 +1,4 @@
-  // src/routes/employees.js
+import type { FastifyInstance } from 'fastify'
 import { employeeService } from '../services/employeeServices.js'
 
 const employeeBodySchema = {
@@ -11,7 +11,8 @@ const employeeBodySchema = {
         role:       { type: 'string' },
     },
     additionalProperties: false
-}
+} as const
+
 const employeeUpdateSchema = {
     type: 'object',
     properties: {
@@ -21,14 +22,15 @@ const employeeUpdateSchema = {
         role:       { type: 'string' },
     },
     additionalProperties: false
-}
+} as const
 
-export default async function employeeRoutes(app) {
+export default async function employeeRoutes(app: FastifyInstance) {
     const service = employeeService(app.prisma)
 
     app.get('/employees', async (request) => {
-        const page = parseInt(request.query.page) || 1
-        const limit = parseInt(request.query.limit) || 10
+        const query = request.query as { page?: string; limit?: string }
+        const page = parseInt(query.page ?? '1') || 1
+        const limit = parseInt(query.limit ?? '10') || 10
         const [data, total] = await Promise.all([
             service.getAll({ page, limit }),
             service.count(),
@@ -43,22 +45,25 @@ export default async function employeeRoutes(app) {
     })
 
     app.get('/employees/:id', async (request, reply) => {
-        const employee = await service.getOne(request.params.id)
+        const { id } = request.params as { id: string }
+        const employee = await service.getOne(id)
         if (!employee) return reply.code(404).send({ error: 'Employee not found' })
         return employee
     })
 
     app.post('/employees', { schema: { body: employeeBodySchema } }, async (request, reply) => {
-        const employee = await service.create(request.body)
+        const employee = await service.create(request.body as { name: string; email: string; department?: string; role?: string })
         return reply.code(201).send(employee)
     })
 
     app.put('/employees/:id', { schema: { body: employeeUpdateSchema } }, async (request, reply) => {
-        return await service.update(request.params.id, request.body)
+        const { id } = request.params as { id: string }
+        return await service.update(id, request.body as { name?: string; email?: string; department?: string; role?: string })
     })
 
     app.delete('/employees/:id', async (request, reply) => {
-        await service.remove(request.params.id)
+        const { id } = request.params as { id: string }
+        await service.remove(id)
         return reply.code(204).send()
     })
 }
