@@ -15,8 +15,13 @@ await app.register(cors, {
   allowedHeaders: ['Content-Type']
 })
 await app.register(db)
+app.setErrorHandler((error, request, reply) => {
+    console.log('ERROR CODE:', error.code, 'CAUSE:', error.cause?.code)
+    if (error.code === 'P2002') return reply.code(409).send({ error: 'Email already exists' })
+    if (error.code === 'P2025') return reply.code(404).send({ error: 'Employee not found' })
+    reply.code(500).send({ error: 'Internal server error' })
+})
 await app.register(employeeRoutes)
-
 app.get('/health', async () => ({ status: 'ok' }))
 
 await app.listen({ port: app.config?.port || Number(process.env.PORT) || 3000, host: '0.0.0.0' })

@@ -8,7 +8,7 @@ import DeleteConfirm from './components/DeleteConfirm'
 import { Toaster } from 'react-hot-toast'
 
 export default function App() {
-    const { employees, loading, fetchAll, addEmployee, editEmployee, removeEmployee } = useEmployeeStore()
+    const { employees, loading, fetchAll, addEmployee, editEmployee, removeEmployee, page, totalPages, setPage } = useEmployeeStore()
 
     const [search, setSearch] = useState('')
     const [modalOpen, setModalOpen] = useState(false)
@@ -17,7 +17,7 @@ export default function App() {
 
     useEffect(() => {
         fetchAll()
-    }, [])
+    }, [page])
 
     const filtered = employees.filter((e) =>
         e.name.toLowerCase().includes(search.toLowerCase())
@@ -73,6 +73,9 @@ export default function App() {
                 employees={filtered}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                page={page}
+                totalPages={totalPages}
+                onPageChange={setPage}
               />
             )}
             <EmployeeModal

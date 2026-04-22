@@ -26,8 +26,20 @@ const employeeUpdateSchema = {
 export default async function employeeRoutes(app) {
     const service = employeeService(app.prisma)
 
-    app.get('/employees', async () => {
-        return service.getAll()
+    app.get('/employees', async (request) => {
+        const page = parseInt(request.query.page) || 1
+        const limit = parseInt(request.query.limit) || 10
+        const [data, total] = await Promise.all([
+            service.getAll({ page, limit }),
+            service.count(),
+        ])
+        return {
+            data,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        }
     })
 
     app.get('/employees/:id', async (request, reply) => {
@@ -42,21 +54,11 @@ export default async function employeeRoutes(app) {
     })
 
     app.put('/employees/:id', { schema: { body: employeeUpdateSchema } }, async (request, reply) => {
-        try {
-            return await service.update(request.params.id, request.body)
-        } catch (error) {
-            if (error.code === 'P2025') return reply.code(404).send({ error: 'Employee not found' })
-            throw error
-        }
+        return await service.update(request.params.id, request.body)
     })
 
     app.delete('/employees/:id', async (request, reply) => {
-        try {
-            await service.remove(request.params.id)
-            return reply.code(204).send()
-        } catch (error) {
-            if (error.code === 'P2025') return reply.code(404).send({ error: 'Employee not found' })
-            throw error
-        }
+        await service.remove(request.params.id)
+        return reply.code(204).send()
     })
 }

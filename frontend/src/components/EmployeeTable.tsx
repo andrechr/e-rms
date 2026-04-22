@@ -5,9 +5,12 @@ interface Props {
     employees: Employee[]
     onEdit: (employee: Employee) => void
     onDelete: (employee: Employee) => void
+    page: number
+    totalPages: number
+    onPageChange: (page: number) => void
 }
 
-export default function EmployeeTable({ employees, onEdit, onDelete }: Props) {
+export default function EmployeeTable({ employees, onEdit, onDelete, page, totalPages, onPageChange }: Props) {
     return (
     <div className="overflow-x-auto rounded-lg border border-gray-200">
         <table className="w-full text-sm text-left">
@@ -51,6 +54,25 @@ export default function EmployeeTable({ employees, onEdit, onDelete }: Props) {
             )}
         </tbody>
         </table>
+        <div className="flex items-center justify-between px-6 py-3 border-t border-gray-200">
+            <span className="text-sm text-gray-500">Page {page} of {totalPages}</span>
+            <div className="flex gap-2">
+                <button
+                    onClick={() => onPageChange(page - 1)}
+                    disabled={page <= 1}
+                    className="px-3 py-1 text-sm rounded border border-gray-200 disabled:opacity-40 hover:bg-gray-50 cursor-pointer"
+                >
+                    Previous
+                </button>
+                <button
+                    onClick={() => onPageChange(page + 1)}
+                    disabled={page >= totalPages}
+                    className="px-3 py-1 text-sm rounded border border-gray-200 disabled:opacity-40 hover:bg-gray-50 cursor-pointer"
+                >
+                    Next
+                </button>
+            </div>
+        </div>
     </div>
     )
 }

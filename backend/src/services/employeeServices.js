@@ -1,6 +1,11 @@
 export function employeeService(prisma) {
     return {
-        getAll: () => prisma.employee.findMany(),
+        getAll: ({ page = 1, limit = 10 } = {}) => prisma.employee.findMany({
+            skip: (page - 1) * limit,
+            take: limit,
+        }),
+        
+        count: () => prisma.employee.count(),
 
         getOne: (id) => prisma.employee.findUnique({ where: { id } }),
 

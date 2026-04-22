@@ -5,26 +5,36 @@ import toast from 'react-hot-toast'
 interface EmployeeStore {
     employees: Employee[]
     loading: boolean
-    error: string | null
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+    error: string | null    
     fetchAll: () => Promise<void>
     addEmployee: (data: CreateEmployeeInput) => Promise<void>
     editEmployee: (data: UpdateEmployeeInput) => Promise<void>
     removeEmployee: (id: string) => Promise<void>
+    setPage: (page: number) => void
 }
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
-export const useEmployeeStore = create<EmployeeStore>((set) => ({
+export const useEmployeeStore = create<EmployeeStore>((set, get) => ({
     employees: [],
     loading: false,
     error: null,
+    limit: 5,
+    page: 1,
+    total: 0,
+    totalPages: 1,
 
     fetchAll: async () => {
       set({ loading: true, error: null })
       try {
-        const res = await fetch(`${API}/employees`)
-        const data = await res.json()
-        set({ employees: data, loading: false })
+        const { page, limit } = get()
+        const res = await fetch(`${API}/employees?page=${page}&limit=${limit}`)
+        const json = await res.json()
+        set({ employees: json.data, total: json.total, totalPages: json.totalPages, loading: false })
       } catch {
         set({ error: 'Failed to fetch employees', loading: false })
         toast.error('Failed to load employees')
@@ -38,8 +48,12 @@ export const useEmployeeStore = create<EmployeeStore>((set) => ({
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(input),
         })
-        const employee = await res.json()
-        set((state) => ({ employees: [...state.employees, employee] }))
+        if (!res.ok) {
+            const err = await res.json()
+            toast.error(err.error || 'Failed to add employee')
+            return
+        }
+        await get().fetchAll()
         toast.success('Employee added!')
       } catch {
         toast.error('Failed to add employee')
@@ -53,10 +67,12 @@ export const useEmployeeStore = create<EmployeeStore>((set) => ({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data),
         })
-        const updated = await res.json()
-        set((state) => ({
-          employees: state.employees.map((e) => (e.id === id ? updated : e)),
-        }))
+        if (!res.ok) {
+            const err = await res.json()
+            toast.error(err.error || 'Failed to update employee')
+            return
+        }
+        await get().fetchAll()
         toast('Employee updated!', { icon: 'ℹ️ ' })
       } catch {
         toast.error('Failed to update employee')
@@ -66,12 +82,11 @@ export const useEmployeeStore = create<EmployeeStore>((set) => ({
     removeEmployee: async (id) => {
       try {
         await fetch(`${API}/employees/${id}`, { method: 'DELETE' })
-        set((state) => ({
-          employees: state.employees.filter((e) => e.id !== id),
-        }))
+        await get().fetchAll()
         toast('Employee deleted!', { icon: '🗑️' })
       } catch {
         toast.error('Failed to delete employee')
       }
     },
+    setPage: (page) => set({ page }),
 }))
