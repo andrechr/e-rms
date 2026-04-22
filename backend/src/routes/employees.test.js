@@ -23,6 +23,7 @@ function buildApp(prisma) {
   app.decorate('prisma', prisma)
   app.register(employeeRoutes)
   app.setErrorHandler((error, request, reply) => {
+    if (error.validation) return reply.code(400).send({ error: error.message })
     if (error.code === 'P2002') return reply.code(409).send({ error: 'Email already exists' })
     if (error.code === 'P2025') return reply.code(404).send({ error: 'Employee not found' })
     reply.code(500).send({ error: 'Internal server error' })
