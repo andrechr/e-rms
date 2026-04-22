@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
-    "migrate": "prisma migrate dev"
+    "migrate": "prisma migrate dev",
+    "test": "vitest run"
   },
   "keywords": [],
   "author": "",
@@ -14,6 +15,9 @@
   "description": "",
   "prisma": {
     "seed": "node prisma/seed.js"
+  },
+  "devDependencies": {
+    "vitest": "^2.0.0"
   },
   "dependencies": {
     "@fastify/cors": "^11.2.0",

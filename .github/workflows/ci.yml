@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  test-frontend:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,3 +26,23 @@ jobs:
       - name: Run tests
         run: npm run test
         working-directory: frontend
+
+  test-backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: backend
+
+      - name: Run tests
+        run: npm run test
+        working-directory: backend
