@@ -4,7 +4,7 @@ import TimelineHeader from './TimelineHeader'
 import PersonRow from './PersonRow'
 
 export default function TimelineGrid() {
-    const { people } = useTimelineStore()
+    const { people, allocations, projects } = useTimelineStore()
     const { startDate, weeks } = useMemo(() => {
         const now = new Date()
         const start = new Date(now.getFullYear(), now.getMonth() + 1, 1)
@@ -19,7 +19,7 @@ export default function TimelineGrid() {
         <div className="border border-gray-200 rounded-lg overflow-hidden">
             <TimelineHeader startDate={startDate} weeks={weeks} />
             {people.map((person) => (
-                <PersonRow key={person.id} person={person} weeks={weeks} />
+                <PersonRow key={person.id} person={person} weeks={weeks} allocations={allocations} projects={projects} startDate={startDate} />
             ))}
         </div>
     )
