@@ -1,4 +1,7 @@
+import { useRef, useState } from 'react'
 import type { Allocation, Person, Project } from '../../types/timeline'
+import { MS_PER_WEEK } from '../../utils/timeline'
+import { useTimelineStore } from '../../store/timelineStore'
 import AllocationBar from './AllocationBar'
 
 interface Props {
@@ -9,10 +12,58 @@ interface Props {
     startDate: string
 }
 
+interface GhostBar {
+    left: number
+    width: number
+}
+
 export default function PersonRow({ person, weeks, allocations, projects, startDate }: Props) {
     const myAllocations = allocations.filter(a => a.personId === person.id)
     const timelineStart = new Date(startDate).getTime()
-    const totalMs = weeks * 7 * 24 * 60 * 60 * 1000
+    const totalMs = weeks * MS_PER_WEEK
+
+    const dragStartX = useRef<number | null>(null)
+    const rowRef = useRef<HTMLDivElement>(null)
+    const [ghostBar, setGhostBar] = useState<GhostBar | null>(null)
+    const addAllocation = useTimelineStore(state => state.addAllocation)
+    const updateAllocation = useTimelineStore(state => state.updateAllocation)
+
+    function handleMouseDown(e: React.MouseEvent) {
+        e.preventDefault()
+        dragStartX.current = e.clientX
+    }
+
+    function handleMouseMove(e: React.MouseEvent) {
+        if (dragStartX.current === null || !rowRef.current) return
+        const rowRect = rowRef.current.getBoundingClientRect()
+        const rowWidth = rowRect.width
+        const startPct = ((dragStartX.current - rowRect.left) / rowWidth) * 100
+        const endPct = ((e.clientX - rowRect.left) / rowWidth) * 100
+        const left = Math.min(startPct, endPct)
+        const width = Math.abs(endPct - startPct)
+        setGhostBar({ left, width })
+    }
+
+    function handleMouseUp(e: React.MouseEvent) {
+        if (dragStartX.current === null || !rowRef.current) return
+        const rowRect = rowRef.current.getBoundingClientRect()
+        const rowWidth = rowRect.width
+        const startPct = (dragStartX.current - rowRect.left) / rowWidth
+        const endPct = (e.clientX - rowRect.left) / rowWidth
+        const startMs = timelineStart + startPct * totalMs
+        const endMs = timelineStart + endPct * totalMs
+        const toDate = (ms: number) => new Date(ms).toISOString().split('T')[0]
+        addAllocation({
+            id: Date.now(),
+            personId: person.id,
+            projectId: 1,
+            startDate: toDate(Math.min(startMs, endMs)),
+            endDate: toDate(Math.max(startMs, endMs)),
+            utilization: 100,
+        })
+        dragStartX.current = null
+        setGhostBar(null)
+    }
 
     return (
         <div className="flex border-b border-gray-200 hover:bg-gray-50">
@@ -20,7 +71,13 @@ export default function PersonRow({ person, weeks, allocations, projects, startD
                 <div className="text-sm font-medium text-gray-900">{person.name}</div>
                 <div className="text-xs text-gray-500">{person.role}</div>
             </div>
-            <div className="flex flex-1 relative">
+            <div
+                ref={rowRef}
+                className="flex flex-1 relative cursor-crosshair"
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+            >
                 {Array.from({ length: weeks }, (_, i) => (
                     <div key={i} className="flex-1 border-r border-gray-100" />
                 ))}
@@ -34,13 +91,23 @@ export default function PersonRow({ person, weeks, allocations, projects, startD
                     return (
                         <AllocationBar
                             key={allocation.id}
+                            allocationId={allocation.id}
                             left={left}
                             width={width}
                             color={project.color}
                             label={project.name}
+                            timelineStart={timelineStart}
+                            totalMs={totalMs}
+                            onUpdate={updateAllocation}
                         />
                     )
                 })}
+                {ghostBar && (
+                    <div
+                        className="absolute top-1.5 bottom-1.5 rounded-full bg-indigo-300 opacity-60 pointer-events-none"
+                        style={{ left: `${ghostBar.left}%`, width: `${ghostBar.width}%` }}
+                    />
+                )}
             </div>
         </div>
     )

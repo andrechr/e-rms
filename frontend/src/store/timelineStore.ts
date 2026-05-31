@@ -7,6 +7,7 @@ interface TimelineState {
   allocations: Allocation[];
   demoMode: boolean;
   addAllocation: (allocation: Allocation) => void;
+  updateAllocation: (id: number, startDate: string, endDate: string) => void;
   setDemoMode: (mode: boolean) => void;
 }
 
@@ -38,6 +39,11 @@ export const useTimelineStore = create<TimelineState>((set) => ({
     demoMode: true,
     addAllocation: (allocation: Allocation) => set((state) => ({
         allocations: [...state.allocations, allocation],
+    })),
+    updateAllocation: (id: number, startDate: string, endDate: string) => set((state) => ({
+        allocations: state.allocations.map(a =>
+              a.id === id ? { ...a, startDate, endDate } : a
+          ),
     })),
     setDemoMode: (mode: boolean) => set({ demoMode: mode }),
 }));
