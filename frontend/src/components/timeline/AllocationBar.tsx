@@ -84,7 +84,7 @@ export default function AllocationBar({ allocationId, left, width, color, label,
             }
         }
 
-        function handleMouseUp(e: MouseEvent) {
+        function handleMouseUp(_e: MouseEvent) {
             const newStartMs = snapToDay(pctToMs(previewRef.current.left))
             const newEndMs = snapToDay(pctToMs(previewRef.current.left + previewRef.current.width))
             onUpdate(allocationId, toDate(newStartMs), toDate(newEndMs))
