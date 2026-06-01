@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { useEmployeeStore } from './employeeStore'
+import { useAppStore } from './appStore'
 
 // Mock react-hot-toast so toast calls don't throw in test env
 vi.mock('react-hot-toast', () => ({
@@ -39,6 +40,7 @@ function mockFetch(body: unknown, ok = true) {
 }
 
 beforeEach(() => {
+  useAppStore.setState({ demoMode: false })
   useEmployeeStore.setState({ employees: [], loading: false, error: null, page: 1, limit: 5, total: 0, totalPages: 1 })
 })
 
