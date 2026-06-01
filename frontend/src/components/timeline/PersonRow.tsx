@@ -1,11 +1,12 @@
 import { useRef, useState } from 'react'
-import type { Allocation, Person, Project } from '../../types/timeline'
-import { MS_PER_WEEK } from '../../utils/timeline'
+import type { Employee } from '../../types/employee'
+import type { Allocation, Project } from '../../types/timeline'
+import { MS_PER_WEEK, snapToDay } from '../../utils/timeline'
 import { useTimelineStore } from '../../store/timelineStore'
 import AllocationBar from './AllocationBar'
 
 interface Props {
-    person: Person
+    person: Employee
     weeks: number
     allocations: Allocation[]
     projects: Project[]
@@ -21,6 +22,14 @@ export default function PersonRow({ person, weeks, allocations, projects, startD
     const myAllocations = allocations.filter(a => a.personId === person.id)
     const timelineStart = new Date(startDate).getTime()
     const totalMs = weeks * MS_PER_WEEK
+
+    function pctToMs(pct: number) {
+        return timelineStart + (pct / 100) * totalMs
+    }
+
+    function snapPct(pct: number) {
+        return ((snapToDay(pctToMs(pct)) - timelineStart) / totalMs) * 100
+    }
 
     const dragStartX = useRef<number | null>(null)
     const rowRef = useRef<HTMLDivElement>(null)
@@ -39,9 +48,9 @@ export default function PersonRow({ person, weeks, allocations, projects, startD
         const rowWidth = rowRect.width
         const startPct = ((dragStartX.current - rowRect.left) / rowWidth) * 100
         const endPct = ((e.clientX - rowRect.left) / rowWidth) * 100
-        const left = Math.min(startPct, endPct)
-        const width = Math.abs(endPct - startPct)
-        setGhostBar({ left, width })
+        const snappedStart = snapPct(Math.min(startPct, endPct))
+        const snappedEnd = snapPct(Math.max(startPct, endPct))
+        setGhostBar({ left: snappedStart, width: snappedEnd - snappedStart })
     }
 
     function handleMouseUp(e: React.MouseEvent) {
@@ -50,15 +59,15 @@ export default function PersonRow({ person, weeks, allocations, projects, startD
         const rowWidth = rowRect.width
         const startPct = (dragStartX.current - rowRect.left) / rowWidth
         const endPct = (e.clientX - rowRect.left) / rowWidth
-        const startMs = timelineStart + startPct * totalMs
-        const endMs = timelineStart + endPct * totalMs
+        const startMs = snapToDay(timelineStart + Math.min(startPct, endPct) * totalMs)
+        const endMs = snapToDay(timelineStart + Math.max(startPct, endPct) * totalMs)
         const toDate = (ms: number) => new Date(ms).toISOString().split('T')[0]
         addAllocation({
-            id: Date.now(),
+            id: crypto.randomUUID(),
             personId: person.id,
-            projectId: 1,
-            startDate: toDate(Math.min(startMs, endMs)),
-            endDate: toDate(Math.max(startMs, endMs)),
+            projectId: 'proj-1',
+            startDate: toDate(startMs),
+            endDate: toDate(endMs),
             utilization: 100,
         })
         dragStartX.current = null

@@ -1,19 +1,14 @@
-export interface Person {
-  id: number;
-  name: string;
-  role: string;
-  avatarUrl?: string;
-}
 export interface Project {
-    id: number;
-    name: string;
-    color: string;
+    id: string
+    name: string
+    color: string
 }
+
 export interface Allocation {
-    id: number;
-    personId: number;
-    projectId: number;
-    startDate: string;
-    endDate: string;
-    utilization: number; // percentage of time allocated
+    id: string
+    personId: string
+    projectId: string
+    startDate: string
+    endDate: string
+    utilization: number
 }

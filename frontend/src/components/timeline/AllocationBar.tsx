@@ -2,14 +2,14 @@ import { useRef, useState, useEffect } from 'react'
 import { snapToDay } from '../../utils/timeline'
 
 interface Props {
-    allocationId: number
+    allocationId: string
     left: number
     width: number
     color: string
     label: string
     timelineStart: number
     totalMs: number
-    onUpdate: (id: number, startDate: string, endDate: string) => void
+    onUpdate: (id: string, startDate: string, endDate: string) => void
 }
 
 type DragMode = 'move' | 'resize-left' | 'resize-right' | null

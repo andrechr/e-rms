@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Combobox, ComboboxInput, ComboboxOptions, ComboboxOption } from '@headlessui/react'
 import type { Department } from '../types/employee'
+import { useAppStore } from '../store/appStore'
+import { dummyDepartments } from '../data/dummyData'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
@@ -10,14 +12,19 @@ interface Props {
 }
 
 export default function DepartmentCombobox({ value, onChange }: Props) {
+    const demoMode = useAppStore(state => state.demoMode)
     const [departments, setDepartments] = useState<Department[]>([])
     const [query, setQuery] = useState('')
 
     useEffect(() => {
+        if (demoMode) {
+            setDepartments(dummyDepartments)
+            return
+        }
         fetch(`${API}/departments`)
             .then((res) => res.json())
             .then(setDepartments)
-    }, [])
+    }, [demoMode])
 
     const filtered = query === ''
         ? departments
@@ -28,6 +35,17 @@ export default function DepartmentCombobox({ value, onChange }: Props) {
     )
 
     async function handleCreate() {
+        if (demoMode) {
+            const created: Department = {
+                id: crypto.randomUUID(),
+                name: query.trim(),
+                createdAt: new Date().toISOString(),
+            }
+            setDepartments((prev) => [...prev, created])
+            onChange(created)
+            setQuery('')
+            return
+        }
         const res = await fetch(`${API}/departments`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

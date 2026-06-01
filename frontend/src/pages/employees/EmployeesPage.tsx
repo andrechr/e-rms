@@ -5,7 +5,6 @@ import EmployeeTable from '../../components/EmployeeTable'
 import SearchBar from '../../components/SearchBar'
 import EmployeeModal from '../../components/EmployeeModal'
 import DeleteConfirm from '../../components/DeleteConfirm'
-import { Toaster } from 'react-hot-toast'
 
 export default function EmployeesPage() {
     const { employees, loading, fetchAll, addEmployee, editEmployee, removeEmployee, page, totalPages, setPage } = useEmployeeStore()
@@ -89,7 +88,6 @@ export default function EmployeesPage() {
               onConfirm={handleConfirmDelete}
               onCancel={() => setDeleteTarget(null)}
             />
-            <Toaster position="bottom-right" />
           </div>
         </div>
     )
