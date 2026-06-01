@@ -18,7 +18,7 @@ export default function AppLayout() {
                 const res = await fetch(`${API}/health`, { signal: AbortSignal.timeout(3000) })
                 if (!res.ok) throw new Error()
             } catch {
-                toast.error('Backend is offline — staying in Dummy mode')
+                toast.error("Backend is offline. Let's stay in Dummy mode")
                 setChecking(false)
                 return
             }
